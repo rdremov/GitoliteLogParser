@@ -1,6 +1,6 @@
-# Gitolite Log File Parser with statistics
-## Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Netsed sorting is supported with various options.
-### Available options are:
+## Gitolite Log File Parser with statistics
+### Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Netsed sorting is supported with various options.
+### Available options:
 * a - IP address
 * c - command
 * d - month day
@@ -18,7 +18,7 @@ cl /EHsc /O2 /MD glp.cpp
 ```
 g++ -o glp glp.cpp
 ```
-### After you build it usage is straightforward.
+### Usage
 
 **To get option details:**
 ```
