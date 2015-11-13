@@ -35,7 +35,7 @@
   ```
   glp -awc gitolite-2015-07.log
   ```
-* **example 4** sort by packet duration, then by user
+* **example 4** sort by packet duration, then by user  
   ```
   glp -eu gitolite-2015-07.log
   ```
@@ -44,13 +44,13 @@
   ```
   glp
   ```
-**get packet count**
-  ```
-  glp -c gitolite-2015-07.log
-  ```
 **get version info**
   ```
   glp -v
+  ```
+**get packet count**
+  ```
+  glp -c gitolite-2015-07.log
   ```
 
 ### compile on Windows with Visual Studio Compiler
@@ -59,6 +59,7 @@
   cl /EHsc /O2 /MD glp.cpp
   ```
 ### compile on Linux with gcc
+*(tested with QNAP ARM and Intel NAS Gitolite server)*
   ```
   g++ -o glp glp.cpp
   ```
