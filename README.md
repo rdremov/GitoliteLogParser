@@ -10,7 +10,7 @@
 * w - week day
 
 ### compile on Windows with Visual Studio Compiler
-(tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)
+*(tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)*
   ```
   cl /EHsc /O2 /MD glp.cpp
   ```
@@ -20,14 +20,13 @@
   ```
 ### usage
 
-**linear parse gitolite log file:**
-*Order is the same as original log file, each line is one transaction prefixed with index.*
+**linear parse gitolite log file**  
+  *order is the same as original log file, each line is one transaction prefixed with index*
   ```
   glp gitolite-2015-07.log
   ```
-**hierarchical parse gitolite log file**
-
-*Order of hierarcy depends on options order. Leftmost column displays statistics (frequency counts).*
+**hierarchical parse gitolite log file**  
+  *order of hierarcy depends on options order, leftmost column displays frequency counts*
 
 * **Example 1** sort by user, then by repo  
   ```
