@@ -55,7 +55,10 @@
 
 ### output
 ```
-/// gitolite commands performed by week day in November
+////////////////////////////////////////////////////////
+/// gitolite commands executed by week day
+////////////////////////////////////////////////////////
+
 [~/.gitolite/logs] # ./glp -wx gitolite-2015-11.log
    892 Sun
      6   git-receive-pack
