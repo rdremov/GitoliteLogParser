@@ -53,6 +53,32 @@
   glp -c gitolite-2015-07.log
   ```
 
+### output
+```
+/// gitolite commands performed by week day in November
+[~/.gitolite/logs] # ./glp -wx gitolite-2015-11.log
+   892 Sun
+     6   git-receive-pack
+   886   git-upload-pack
+  1599 Mon
+    42   git-receive-pack
+  1557   git-upload-pack
+  1688 Tus
+    72   git-receive-pack
+  1616   git-upload-pack
+   922 Wed
+    42   git-receive-pack
+   880   git-upload-pack
+  1115 Thu
+    54   git-receive-pack
+  1061   git-upload-pack
+   606 Fri
+    43   git-receive-pack
+   563   git-upload-pack
+   289 Sat
+   289   git-upload-pack
+```
+
 ### compile on Windows with Visual Studio Compiler
 *(tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)*
   ```
