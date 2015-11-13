@@ -18,13 +18,22 @@ using namespace std;
 
 //#define GLPVERSION	1		// original code
 //#define GLPVERSION	2		// added version option
-#define GLPVERSION		3		// added Option class
+//#define GLPVERSION	3		// added Option class
+#define GLPVERSION		4		// added count, minutes, month, year options
 
 #define MAX_BACK		10		// when searching packet by ID how many to go back
 #define INDENT_SPACES	2		// indent spaces per hierarchical level
+#define MAX_BUF_SIZE	512		// per line
+
+// reserve vetor size to prevent small allocations
+#define INIT_DATA_SIZE	1024
+#define INIT_USER_SIZE	32
+#define INIT_ADDR_SIZE	INIT_USER_SIZE
+#define INIT_CMD_SIZE	2
+#define INIT_REPO_SIZE	8
 
 static const char* l_wdays[] = {"Sun", "Mon", "Tus", "Wed", "Thu", "Fri", "Sat"};
-
+static const char* l_months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 enum	ERROR
 {
 	ERROR_OK = 0,
@@ -39,9 +48,25 @@ enum	TYPE
 	TYPE_HTTP,
 };
 
+inline int		cmp_val(const char* v1, const char* v2)
+{
+	if( v1 == v2 )
+		return 0;
+	return strcmp(v1, v2);
+}
+
+inline int		cmp_val(int v1, int v2)
+{
+	if( v1 < v2 )
+		return -1;
+	else if( v1 > v2 )
+		return 1;
+	return 0;
+}
+
 static bool		str_match(const char* s1, const char* s2)
 {
-	return 0 == strcmp(s1, s2);
+	return 0 == cmp_val(s1, s2);
 }
 
 static char*	get_term(char*& str, char delim = '\t')
@@ -76,22 +101,6 @@ static char*	get_val(char*& str, const char* arg)
 	if( strName && strVal && str_match(strName, arg) )
 		return strVal;
 	return NULL;
-}
-
-inline int		cmp_val(const char* v1, const char* v2)
-{
-	if( v1 == v2 )
-		return 0;
-	return strcmp(v1, v2);
-}
-
-inline int		cmp_val(int v1, int v2)
-{
-	if( v1 < v2 )
-		return -1;
-	else if( v1 > v2 )
-		return 1;
-	return 0;
 }
 
 inline tm		LTime(time_t t)
@@ -146,17 +155,19 @@ public:
 		memset(this, 0, sizeof(Packet));
 	}
 
-	void	Parse(char* str)
+	bool	Parse(char* str)
 	{
 		ParseTime(str);
 		ParseTid(str);
-		ParseType(str);
+		if( !ParseType(str) )
+			return false;
 		if( m_type > TYPE_NONE )
 		{
 			ParseUser(str);
 			ParseCmd(str);
 			ParseAddr(str);
 		}
+		return true;
 	}
 
 	int			CmpAddr(const Packet* p) const		{return cmp_val(m_addr, p->m_addr);}
@@ -171,6 +182,9 @@ public:
 	int			CmpUser(const Packet* p) const		{return cmp_val(m_user, p->m_user);}
 	void		OutUser() const						{out_val(m_user);}
 
+	int			CmpDelta(const Packet* p) const		{return cmp_val(m_delta,  p->m_delta);}
+	void		OutDelta() const					{printf("%d", m_delta);}
+
 	int			CmpDay(const Packet* p) const		{return cmp_val(LTime(m_time).tm_mday, LTime(p->m_time).tm_mday);}
 	void		OutDay() const						{printf("%d", LTime(m_time).tm_mday);}
 
@@ -179,6 +193,15 @@ public:
 
 	int			CmpHour(const Packet* p) const		{return cmp_val(LTime(m_time).tm_hour, LTime(p->m_time).tm_hour);}
 	void		OutHour() const						{printf("%02d", LTime(m_time).tm_hour);}
+
+	int			CmpMin(const Packet* p) const		{return cmp_val(LTime(m_time).tm_min, LTime(p->m_time).tm_min);}
+	void		OutMin() const						{printf("%02d", LTime(m_time).tm_min);}
+
+	int			CmpMonth(const Packet* p) const		{return cmp_val(LTime(m_time).tm_mon, LTime(p->m_time).tm_mon);}
+	void		OutMonth() const					{printf("%s", l_months[LTime(m_time).tm_mon]);}
+
+	int			CmpYear(const Packet* p) const		{return cmp_val(LTime(m_time).tm_year, LTime(p->m_time).tm_year);}
+	void		OutYear() const						{printf("%4d", LTime(m_time).tm_year + 1900);}
 
 protected:
 	static int	Compare(const void* p1, const void* p2)
@@ -214,21 +237,24 @@ protected:
 			m_tid = atoi(strTid);
 	}
 
-	void	ParseType(char*& str)
+	bool	ParseType(char*& str)
 	{
 		const char* strType = get_term(str);
 		if( !strType )
-			return;
+			return false;
 		if( str_match(strType, "ssh") )
 			m_type = TYPE_SSH;
 		else if( str_match(strType, "http") )
 			m_type = TYPE_HTTP;
-		if( str_match(strType, "END") )
+		else if( str_match(strType, "END") )
 			m_bEnd = true;
 		else if( str_match(strType, "update") )
 			m_bUpdate = true;
 		else if( str_match(strType, "pre_git") )
 			m_bPreGit = true;
+		else
+			return false;
+		return true;
 	}
 
 	void	ParseUser(char*& str)
@@ -253,6 +279,7 @@ private:
 	const char*	m_user;
 	const char*	m_repo;
 	int			m_tid;
+	int			m_delta;		// packet duration
 	char		m_type;			// TYPE
 	bool		m_bEnd;			// packet should have it
 	bool		m_bUpdate;		// packet has update field
@@ -260,13 +287,17 @@ private:
 	const char*	m_cmd;
 	const char*	m_addr;
 	time_t		m_time;
-	time_t		m_delta;
 	friend class Data;
 };
 
 class	StrMap
 {
 public:
+	StrMap(int nReserve)
+	{
+		m_v.reserve(nReserve);
+	}
+
 	~StrMap()
 	{
 		for(size_t ii=0; ii<m_v.size(); ii++)
@@ -291,6 +322,14 @@ private:
 class	Data
 {
 public:
+	Data()	:	m_users(INIT_USER_SIZE),
+				m_addrs(INIT_ADDR_SIZE),
+				m_cmds(INIT_CMD_SIZE),
+				m_repos(INIT_REPO_SIZE)
+	{
+		m_packets.reserve(INIT_DATA_SIZE);
+	}
+
 	void	Add(const Packet& packet)
 	{
 		if( packet.m_type > TYPE_NONE )
@@ -311,7 +350,9 @@ public:
 				Packet& packet0 = m_packets[ii];
 				if( packet0.m_tid == packet.m_tid )
 				{
-					packet0.m_delta = packet.m_time - packet0.m_time;
+					int delta = (int)(packet.m_time - packet0.m_time);
+					if( packet0.m_delta < delta )
+						packet0.m_delta = delta;
 					if( packet.m_bEnd )
 						packet0.m_bEnd = packet.m_bEnd;
 					if( packet.m_bUpdate )
@@ -324,12 +365,16 @@ public:
 		}
 	}
 
-	void	Out()
+	void	Out(bool bCount)
 	{
 		if( g_opts )
 		{
 			qsort(m_packets.data(), m_packets.size(), sizeof(Packet), &Packet::Compare);
 			Out(g_opts, 0, m_packets.size(), 0);
+		}
+		else if( bCount )
+		{
+			printf("%d\n", m_packets.size());
 		}
 		else
 		{
@@ -339,7 +384,7 @@ public:
 				printf("%d", ii + 1);
 				printf("\t");
 				struct tm tm = LTime(pa.m_time);
-				printf("%04d-%02d-%02d.%02d:%02d:%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+				printf("%4d-%s-%02d.%02d:%02d:%02d", tm.tm_year + 1900, l_months[tm.tm_mon], tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 				printf("\t");
 				printf("%d", pa.m_tid);
 				printf("\t");
@@ -406,12 +451,16 @@ public:
 		switch( opt )
 		{
 		OPT_CASE('a', Addr, "IP address");
-		OPT_CASE('c', Cmd, "command");
 		OPT_CASE('d', Day, "month day");
+		OPT_CASE('e', Delta, "time delta per packet");
 		OPT_CASE('h', Hour, "hour");
+		OPT_CASE('m', Month, "month");
+		OPT_CASE('n', Min, "minute");
 		OPT_CASE('r', Repo, "repository name");
 		OPT_CASE('u', User, "user name");
 		OPT_CASE('w', Wday, "week day");
+		OPT_CASE('x', Cmd, "command");
+		OPT_CASE('y', Year, "year");
 		}
 		return 0;
 	}
@@ -435,14 +484,15 @@ protected:
 
 int		main(int argc, char* argv[])
 {
-	char buf[1024];
+	char buf[MAX_BUF_SIZE];
 	const char* name = NULL;
 	const char* opts = NULL;
+	bool bCount = false;
 
 	switch( argc )
 	{
 	case 2:
-		if( 0 == strcmp(argv[1], "-v") )
+		if( str_match(argv[1], "-v") )
 		{
 			printf("Version 1.%d by Roman Dremov 2015\n", GLPVERSION);
 			return 0;
@@ -452,7 +502,10 @@ int		main(int argc, char* argv[])
 	case 3:
 		if( *argv[1] == '-' )
 		{
-			opts = argv[1] + 1;
+			if( str_match(argv[1] + 1, "c") )
+				bCount = true;
+			else
+				opts = argv[1] + 1;
 			name = argv[2];
 		}
 		break;
@@ -488,7 +541,11 @@ int		main(int argc, char* argv[])
 				*str++ = cc;
 		}
 		*str = 0;
-		printf("USE: glp -v or glp [-%s] gitolite.log\n", buf);
+		printf("USE:\n"
+			"\tglp -v\t\t\t\tto get version info\n"
+			"\tglp -c gitolite.log\t\tto count entries\n"
+			"\tglp gitolite.log\t\tto output all entries\n"
+			"\tglp [-%s] gitolite.log\tto output entries hierarchically\n", buf);
 		printf("OPTIONS (order defines report sorting hierarchy):\n");
 		str = buf;
 		*str = 0;
@@ -524,13 +581,13 @@ int		main(int argc, char* argv[])
 		if( str )
 		{
 			Packet packet;
-			packet.Parse(str);
-			data.Add(packet);
+			if( packet.Parse(str) )
+				data.Add(packet);
 		}
 	} while( !feof(pf) );
 
 	fclose(pf);
-	data.Out();
+	data.Out(bCount);
 	return ERROR_OK;
 }
 
