@@ -1,5 +1,5 @@
 ## Gitolite Log File Parser with statistics
-**Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Netsed sorting is supported with various options**
+**Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Nested sorting is supported with various options. Single file solution.**
 ### options
 * a - IP address
 * c - command
