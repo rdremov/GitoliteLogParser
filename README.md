@@ -1,6 +1,6 @@
 ## Gitolite Log File Parser with statistics
 **Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Netsed sorting is supported with various options**
-### options:
+### options
 * a - IP address
 * c - command
 * d - month day
@@ -9,32 +9,25 @@
 * u - user name
 * w - week day
 
-### compile on Windows with Visual Studio Compiler:
+### compile on Windows with Visual Studio Compiler
 (tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)
   ```
   cl /EHsc /O2 /MD glp.cpp
   ```
-### compile on Linux with gcc:
+### compile on Linux with gcc
   ```
   g++ -o glp glp.cpp
   ```
 ### usage
 
-**get option details:**
-  ```
-  glp
-  ```
-**get version:**
-  ```
-  glp -v
-  ```
-
 **linear parse gitolite log file:**
+*Order is the same as original log file, each line is one transaction prefixed with index.*
   ```
   glp gitolite-2015-07.log
   ```
+**hierarchical parse gitolite log file**
 
-**hierarchical parse gitolite log file. Order of hierarcy depends on options order. Leftmost column displays statistics (frequency counts).**
+*Order of hierarcy depends on options order. Leftmost column displays statistics (frequency counts).*
 
 * **Example 1** sort by user, then by repo  
   ```
@@ -47,6 +40,15 @@
 * **Example 3** sort by IP address, then by week day, finally by command  
   ```
   glp -awc gitolite-2015-07.log
+  ```
+
+**get option details**
+  ```
+  glp
+  ```
+**get version info**
+  ```
+  glp -v
   ```
 
 ### thanks!
