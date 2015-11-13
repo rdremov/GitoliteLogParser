@@ -1,13 +1,17 @@
-## Gitolite Log File Parser with statistics
-**Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Nested sorting is supported with various options. Single file solution.**
+## Gitolite Log File Parser with statistics and performance analysis
+**Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Nested sorting is supported with various options. This tool allows to diagnose various performance problems, like packet duration, access frequency etc. Single file solution easy to build on Windows, Linux, Mac etc.**
 ### options
 * a - IP address
-* c - command
 * d - month day
+* e - delta time (duration)
 * h - hour
+* m - month
+* n - minute
 * r - repository name
 * u - user name
 * w - week day
+* x - command
+* y - year
 
 ### usage
 
@@ -19,22 +23,30 @@
 **hierarchical parse gitolite log file**  
   *order of hierarcy depends on options order, leftmost column displays frequency counts*
 
-* **Example 1** sort by user, then by repo  
+* **example 1** sort by user, then by repo  
   ```
   glp -ur gitolite-2015-07.log
   ```
-* **Example 2** sort by month day, then by user  
+* **example 2** sort by month day, then by user  
   ```
   glp -du gitolite-2015-07.log
   ```
-* **Example 3** sort by IP address, then by week day, finally by command  
+* **example 3** sort by IP address, then by week day, finally by command  
   ```
   glp -awc gitolite-2015-07.log
+  ```
+* **example 4** sort by packet duration, then by user
+  ```
+  glp -eu gitolite-2015-07.log
   ```
 
 **get option details**
   ```
   glp
+  ```
+**get packet count**
+  ```
+  glp -c gitolite-2015-07.log
   ```
 **get version info**
   ```
