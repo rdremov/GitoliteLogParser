@@ -9,15 +9,6 @@
 * u - user name
 * w - week day
 
-### compile on Windows with Visual Studio Compiler
-*(tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)*
-  ```
-  cl /EHsc /O2 /MD glp.cpp
-  ```
-### compile on Linux with gcc
-  ```
-  g++ -o glp glp.cpp
-  ```
 ### usage
 
 **linear parse gitolite log file**  
@@ -50,4 +41,13 @@
   glp -v
   ```
 
+### compile on Windows with Visual Studio Compiler
+*(tested with VisualStudio 2012, run from Developer Command Prompt for VS2012)*
+  ```
+  cl /EHsc /O2 /MD glp.cpp
+  ```
+### compile on Linux with gcc
+  ```
+  g++ -o glp glp.cpp
+  ```
 ### thanks!
