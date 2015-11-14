@@ -1,5 +1,5 @@
 ## Gitolite Log File Parser with statistics and performance analysis
-**Multiplatform Hierarchical Gitolite Log file parser to show SSH request statistics. Nested sorting is supported with various options. This tool allows to diagnose various performance problems, like packet duration, access frequency etc. Single file solution easy to build on Windows, Linux, Mac etc.**
+**Multiplatform Hierarchical Gitolite Log file parser to analyze request statistics. Nested sorting is supported with various options. This tool allows to diagnose various performance problems, like packet duration, user access frequency etc. Single file solution easy to build on Windows, Linux, Mac etc.**
 ### options
 * a - IP address
 * d - month day
