@@ -16,10 +16,14 @@
 #include <vector>
 using namespace std;
 
+//#define GLPYEAR		2015
+#define GLPYEAR			2017
+
 //#define GLPVERSION	1		// original code
 //#define GLPVERSION	2		// added version option
 //#define GLPVERSION	3		// added Option class
-#define GLPVERSION		4		// added count, minutes, month, year options
+//#define GLPVERSION		4		// added count, minutes, month, year options
+#define GLPVERSION		5		// fix null str crash
 
 #define MAX_BACK		10		// when searching packet by ID how many to go back
 #define INDENT_SPACES	2		// indent spaces per hierarchical level
@@ -32,8 +36,10 @@ using namespace std;
 #define INIT_CMD_SIZE	2
 #define INIT_REPO_SIZE	8
 
+static const char* l_empty = "(null)";
 static const char* l_wdays[] = {"Sun", "Mon", "Tus", "Wed", "Thu", "Fri", "Sat"};
 static const char* l_months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+
 enum	ERROR
 {
 	ERROR_OK = 0,
@@ -98,7 +104,7 @@ static char*	get_val(char*& str, const char* arg)
 {
 	char* strVal = get_term(str);
 	char* strName = get_term(strVal, '=');
-	if( strName && strVal && str_match(strName, arg) )
+	if( strName && strVal && *strVal && str_match(strName, arg) )
 		return strVal;
 	return NULL;
 }
@@ -112,6 +118,8 @@ inline void		out_val(const char* val)
 {
 	if( val )
 		printf("%s", val);
+	else
+		printf("%s", l_empty);
 }
 
 class	Packet;
@@ -164,7 +172,7 @@ public:
 		if( m_type > TYPE_NONE )
 		{
 			ParseUser(str);
-			ParseCmd(str);
+			ParseCmdRepo(str);
 			ParseAddr(str);
 		}
 		return true;
@@ -262,12 +270,18 @@ protected:
 		m_user = get_val(str, "ARGV");
 	}
 
-	void	ParseCmd(char*& str)
+	void	ParseCmdRepo(char*& str)
 	{
-		char* val = get_val(str, "SOC");
-		m_cmd = get_term(val, ' ');
-		get_term(val, '\'');
-		m_repo = get_term(val, '\'');
+		char* temp = get_val(str, "SOC");
+		if( temp )
+		{
+			m_cmd = get_term(temp, ' ');
+			if( temp && *temp == '\'' )
+			{
+				temp++;
+				m_repo = get_term(temp, '\'');
+			}
+		}
 	}
 
 	void	ParseAddr(char*& str)
@@ -306,6 +320,8 @@ public:
 
 	const char*	Find(const char* str)
 	{
+		if( !str )
+			str = l_empty;
 		for(size_t ii=0; ii<m_v.size(); ii++)
 		{
 			if( str_match(str, m_v[ii]) )
@@ -385,16 +401,11 @@ public:
 				printf("\t");
 				struct tm tm = LTime(pa.m_time);
 				printf("%4d-%s-%02d.%02d:%02d:%02d", tm.tm_year + 1900, l_months[tm.tm_mon], tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-				printf("\t");
-				printf("%d", pa.m_tid);
-				printf("\t");
-				out_val(pa.m_user);
-				printf("\t");
-				out_val(pa.m_addr);
-				printf("\t");
-				out_val(pa.m_repo);
-				printf("\t");
-				out_val(pa.m_cmd);
+				printf("\t");	printf("%d", pa.m_tid);
+				printf("\t");	out_val(pa.m_user);
+				printf("\t");	out_val(pa.m_addr);
+				printf("\t");	out_val(pa.m_repo);
+				printf("\t");	out_val(pa.m_cmd);
 				printf("\n");
 			}
 		}
@@ -494,7 +505,7 @@ int		main(int argc, char* argv[])
 	case 2:
 		if( str_match(argv[1], "-v") )
 		{
-			printf("Version 1.%d by Roman Dremov 2015\n", GLPVERSION);
+			printf("Version 1.%d by Roman Dremov %d\n", GLPVERSION, GLPYEAR);
 			return 0;
 		}
 		name = argv[1];
@@ -588,6 +599,8 @@ int		main(int argc, char* argv[])
 
 	fclose(pf);
 	data.Out(bCount);
+
+	//getchar();
 	return ERROR_OK;
 }
 
