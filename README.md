@@ -33,7 +33,7 @@
   ```
 * **example 3** sort by IP address, then by week day, finally by command  
   ```
-  glp -awc gitolite-2015-07.log
+  glp -awx gitolite-2015-07.log
   ```
 * **example 4** sort by packet duration, then by user  
   ```
